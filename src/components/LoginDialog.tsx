@@ -36,20 +36,23 @@ export default function LoginDialog({ setIsUserAuthorized }: LoginDialogProps) {
 
     const handleLogin = async () => {
         try {
+            setFormData({ email: 'test1@example.com',
+                password: 'password' });
             const response = await axios.post('/auth/login', formData);
-            // Assuming the token is received in the response
             const { token } = response.data;
-            // Store the token in local storage
             localStorage.setItem('token', token);
-            // Close the dialog
             handleClose();
-            // Set global variable to indicate user is authorized
-            window.isUserAuthorized = true;
 
             setIsUserAuthorized(true);
+            window.location.reload();
+
+            setTimeout(() => {
+                localStorage.removeItem('token');
+                window.location.reload();
+            }, 300000);
+
         } catch (error) {
             console.error('Login failed:', error);
-            // Handle login failure (show error message, etc.)
         }
     };
 
@@ -61,9 +64,6 @@ export default function LoginDialog({ setIsUserAuthorized }: LoginDialogProps) {
             <Dialog
                 open={open}
                 onClose={handleClose}
-                PaperProps={{
-                    component: 'form',
-                }}
             >
                 <DialogTitle>Login</DialogTitle>
                 <DialogContent>
@@ -100,7 +100,7 @@ export default function LoginDialog({ setIsUserAuthorized }: LoginDialogProps) {
                         type="submit"
                         variant="contained"
                         color="primary"
-                        sx={{ width: '100%', margin: '10px 0' }}
+                        sx={{ width: '100%', margin: '10px 0', backgroundColor: 'grey' }}
                         onClick={handleLogin}
                     >
                         Login
@@ -108,9 +108,9 @@ export default function LoginDialog({ setIsUserAuthorized }: LoginDialogProps) {
 
                     <Button
                         variant="contained"
-                        color="warning"
+                        color="error"
                         onClick={handleClose}
-                        sx={{ width: '100%' }}
+                        sx={{ width: '100%', backgroundColor: 'black' }}
                     >
                         Cancel
                     </Button>

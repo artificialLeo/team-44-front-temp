@@ -51,7 +51,7 @@ const RegisterDialog = () => {
         try {
             const response = await axios.post('/auth/registration', formData);
             console.log(response.data);
-            window.isUserAuthorized = true;
+
             handleClear();
         } catch (error) {
             console.error('Registration failed:', error);
@@ -153,16 +153,16 @@ const RegisterDialog = () => {
                         type="submit"
                         variant="contained"
                         color="primary"
-                        sx={{ width: '100%', margin: '10px 0' }}
+                        sx={{ width: '100%', margin: '10px 0', backgroundColor: 'black' }}
                     >
                         Register
                     </Button>
 
                     <Button
                         variant="contained"
-                        color="warning"
+                        color="error"
                         onClick={handleClose}
-                        sx={{ width: '100%' }}
+                        sx={{ width: '100%', backgroundColor: 'grey' }}
                     >
                         Cancel
                     </Button>

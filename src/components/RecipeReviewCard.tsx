@@ -1,45 +1,92 @@
 import * as React from 'react';
-import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
-import { Link } from 'react-router-dom';
+import {Link} from 'react-router-dom';
 import CardHeader from '@mui/material/CardHeader';
 import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
-import Collapse from '@mui/material/Collapse';
-import Avatar from '@mui/material/Avatar';
-import IconButton, { IconButtonProps } from '@mui/material/IconButton';
+import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import { red } from '@mui/material/colors';
+import {red} from '@mui/material/colors';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import ShareIcon from '@mui/icons-material/Share';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import Avatar from '@mui/material/Avatar';
 import Rating from '@mui/material/Rating';
+import QueryBuilderRoundedIcon from "@mui/icons-material/QueryBuilderRounded";
+import RestaurantRoundedIcon from "@mui/icons-material/RestaurantRounded";
+import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
+import {Box, Checkbox, FormControlLabel} from "@mui/material";
+import useCurrentUser from "../utils/useCurrentUser";
+import axios, {getAuthConfig} from "../utils/customAxios";
+import {useEffect} from "react";
 
-
-interface ExpandMoreProps extends IconButtonProps {
-    expand: boolean;
+export interface RecipeDto {
+    userName: string;
+    creationDate: string;
+    recipeId: number;
+    title: string;
+    imageUrl: string;
+    rating: number;
+    quantity: number;
+    category: string[];
+    cookingTimeInMinutes: number;
+    summary: string;
 }
 
-const ExpandMore = styled((props: ExpandMoreProps) => {
-    const { expand, ...other } = props;
-    return <IconButton {...other} />;
-})(({ theme, expand }) => ({
-    transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
-    marginLeft: 'auto',
-    transition: theme.transitions.create('transform', {
-        duration: theme.transitions.duration.shortest,
-    }),
-}));
+interface RecipeReviewCardProps {
+    recipe: RecipeDto;
+}
 
-export default function RecipeReviewCard() {
+const RecipeReviewCard: React.FC<RecipeReviewCardProps> = ({recipe}) => {
     const [expanded, setExpanded] = React.useState(false);
-    const [value, setValue] = React.useState<number | null>(2);
+    const [value, setValue] = React.useState<number | null>(recipe.rating);
     const [isPurple, setIsPurple] = React.useState(false);
+    const {currentUser, loading, error} = useCurrentUser();
 
-    const handleClick = () => {
-        setIsPurple(prevState => !prevState);
+    useEffect(() => {
+        const fetchFavouriteRecipes = async () => {
+            try {
+                const response = await axios.get('/users/favourite/recipes', getAuthConfig());
+
+                if (Array.isArray(response.data.content)) {
+                    const isRecipeFavourite = response.data.content.find(
+                        (favouriteRecipe: RecipeDto) => favouriteRecipe.recipeId === recipe.recipeId
+                    );
+
+                    setIsPurple(!!isRecipeFavourite);
+                } else {
+                    console.log("Response data is not an array");
+                }
+
+            } catch (error) {
+                console.log(error)
+            }
+        };
+
+        fetchFavouriteRecipes();
+    }, []);
+
+    const handleClick = async () => {
+        try {
+            const user = await currentUser;
+            if (user) {
+                const { email } = user;
+                const requestUrl = isPurple
+                    ? `/users/favourite/recipes/remove?recipeId=${recipe.recipeId}`
+                    : `/users/favourite/recipes/add?recipeId=${recipe.recipeId}`;
+
+                const config = {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    withCredentials: true,
+                };
+
+                await axios.post(requestUrl, null, getAuthConfig());
+                setIsPurple((prevState) => !prevState);
+            }
+        } catch (error) {
+            console.error('Error adding/removing favorite recipe:', error);
+        }
     };
 
     const handleExpandClick = () => {
@@ -47,45 +94,74 @@ export default function RecipeReviewCard() {
     };
 
     return (
-        <Card sx={{ maxWidth: 345 }}>
+        <Card sx={{maxWidth: 345, margin: '20px'}}>
             <CardHeader
                 avatar={
-                    <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-                        R
+                    <Avatar sx={{bgcolor: red[500]}} aria-label="recipe">
+                        {recipe.userName?.charAt(0)?.toUpperCase()}
                     </Avatar>
                 }
                 action={
-                    <IconButton aria-label="add to favorites" onClick={handleClick}>
-                        <FavoriteIcon style={{ color: isPurple ? 'red' : 'inherit' }} />
-                    </IconButton>
+                    <Box sx={{display: 'flex', alignItems: 'flex-start'}}>
+                        {currentUser && (
+                            <IconButton aria-label="add to favorites" onClick={handleClick} sx={{ml: 'auto', mt: 1}}>
+                                <FavoriteIcon style={{color: isPurple ? 'red' : 'inherit'}}/>
+                            </IconButton>
+                        )}
+                    </Box>
                 }
-                title="Shrimp and Chorizo Paella"
-                subheader="September 14, 2016"
+                title={recipe.title}
+                subheader={recipe.creationDate}
             />
-            <Link to={`/recipe/1`}>
-                <CardMedia
-                    component="img"
-                    height="194"
-                    image="https://spoonacular.com/recipeImages/638816-556x370.jpg"
-                    alt="Paella dish"
-                />
+
+            <Link to={`/recipe/${recipe.recipeId}`}>
+                <CardMedia component="img" height="194" image={recipe.imageUrl} alt={recipe.title}/>
             </Link>
             <CardContent>
                 <Typography variant="body2" color="text.secondary">
-                    This impressive paella is a perfect party dish and a fun meal to cook
-                    together with your guests. Add 1 cup of frozen peas along with the mussels,
-                    if you like.
+                    {recipe.summary}
                 </Typography>
             </CardContent>
-            <CardActions disableSpacing>
+            <CardActions disableSpacing sx={{
+                display: 'flex',
+                justifyContent: 'space-between'
+            }}>
+                <Box display="flex" flexDirection="row">
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '8px',
+                        borderRight: '2px solid #E5E5E5',
+                    }}>
+                        <QueryBuilderRoundedIcon/>
+                        <div style={{paddingRight: '2px', marginLeft: '2px'}}>
+                            {recipe.cookingTimeInMinutes}
+                        </div>
+                    </div>
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '8px',
+                    }}>
+                        <PeopleAltRoundedIcon/>
+                        <div style={{paddingRight: '2px', marginLeft: '2px'}}>
+                            {recipe.quantity}
+                        </div>
+                    </div>
+                </Box>
                 <Rating
                     name="simple-controlled"
-                    value={3}
-                    onChange={(event, newValue) => {
-                        setValue(newValue);
-                    }}
+                    value={value}
+                    readOnly
+                    // onChange={(event, newValue) => {
+                    //     setValue(newValue);
+                    // }}
                 />
             </CardActions>
         </Card>
     );
-}
+};
+
+export default RecipeReviewCard;
