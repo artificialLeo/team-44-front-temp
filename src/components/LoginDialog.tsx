@@ -36,8 +36,8 @@ export default function LoginDialog({ setIsUserAuthorized }: LoginDialogProps) {
 
     const handleLogin = async () => {
         try {
-            setFormData({ email: 'test1@example.com',
-                password: 'password' });
+            setFormData({ email: formData.email,
+                password: formData.password });
             const response = await axios.post('/auth/login', formData);
             const { token } = response.data;
             localStorage.setItem('token', token);

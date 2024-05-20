@@ -233,7 +233,7 @@ const RecipeDetailed: React.FC = () => {
                                 }}>
                                     <GradeRoundedIcon sx={{color: '#faaf00'}}/>
                                     <div style={{paddingRight: '2px', marginLeft: '2px'}}>
-                                        {recipe.rating}
+                                        {parseInt(recipe.rating.toFixed())}
                                     </div>
                                 </div>
                             </div>

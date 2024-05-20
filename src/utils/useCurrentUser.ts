@@ -33,7 +33,8 @@ const useCurrentUser = () => {
                 const userData = response.data;
                 setCurrentUser(userData);
             } catch (error) {
-                setError((error as AxiosError).message || 'An error occurred');
+                // setError((error as AxiosError).message || 'An error occurred');
+                window.location.reload();
             } finally {
                 setLoading(false);
             }
