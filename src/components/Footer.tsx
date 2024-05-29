@@ -22,7 +22,8 @@ function Footer() {
             width: '100%',
             textAlign: 'center',
             backgroundColor: 'black',
-            color: 'white'
+            color: 'white',
+            zIndex: 999
         }}>
             <Grid container
             sx={{

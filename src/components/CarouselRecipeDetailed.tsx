@@ -8,7 +8,7 @@ const CarouselRecipeDetailed: React.FC = () => {
     };
 
     const randomImageUrls = Array.from({ length: 4 }, () => {
-        return `https://source.unsplash.com/1600x900/?cooking&${getRandomString()}`;
+        return `https://loremflickr.com/1600/900/food?random=${getRandomString()}`;
     });
 
     return (

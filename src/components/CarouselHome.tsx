@@ -22,16 +22,16 @@ const CarouselHome: React.FC = () => {
         <div style={{ width: '100%' }}>
             <Carousel arrows dotPosition="left" autoplay style={{ width: '100%', marginBottom: '-40px' }}>
                 <div>
-                    <img src="https://source.unsplash.com/1600x900/?food" alt="Slide 1" style={imageStyle} />
+                    <img src="https://loremflickr.com/1600/900/food?random=1" alt="Slide 1" style={imageStyle} />
                 </div>
                 <div>
-                    <img src="https://source.unsplash.com/1600x900/?meal" alt="Slide 2" style={imageStyle} />
+                    <img src="https://loremflickr.com/1600/900/food?random=2" alt="Slide 2" style={imageStyle} />
                 </div>
                 <div>
-                    <img src="https://source.unsplash.com/1600x900/?delicious" alt="Slide 3" style={imageStyle} />
+                    <img src="https://loremflickr.com/1600/900/food?random=3" alt="Slide 3" style={imageStyle} />
                 </div>
                 <div>
-                    <img src="https://source.unsplash.com/1600x900/?cooking" alt="Slide 4" style={imageStyle} />
+                    <img src="https://loremflickr.com/1600/900/food?random=4" alt="Slide 4" style={imageStyle} />
                 </div>
             </Carousel>
         </div>
